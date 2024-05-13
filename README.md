@@ -11,6 +11,12 @@ Snelheid in km/u en rating
 24 - 3000 ELO  
 23 - 2900 ELO  
 22 - 2800 ELO  
+21 - 2700 ELO  
+20 - 2600 ELO  
+19 - 2500 ELO  
+18 - 2400 ELO  
+17 - 2300 ELO  
+16 - 2200 ELO  
 15 - 2100 ELO  
 14 - 1975 ELO  
 13 - 1850 ELO  
