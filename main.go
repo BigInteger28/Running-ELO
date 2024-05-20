@@ -5,6 +5,28 @@ import (
 	"math"
 )
 
+// Afstandsmultiplier berekenen op basis van de afstand
+func getDistanceMultiplier(distance float64) float64 {
+	if distance < 1 {
+		return 0.8 // Basis multiplier voor afstanden minder dan 1 km
+	} else if distance >= 1 && distance <= 5 {
+		// Lineaire schaal tussen 1 km en 5 km
+		return 0.9 + (distance-1)*(1.0-0.85)/4
+	} else if distance <= 10 {
+		return 1.0 + (distance-5)*(1.1-1.0)/5
+	} else if distance <= 15 {
+		return 1.1 + (distance-10)*(1.15-1.1)/5
+	} else if distance <= 21.1 {
+		return 1.15 + (distance-15)*(1.2-1.15)/6.1
+	} else if distance <= 42.3 {
+		return 1.2 + (distance-21.1)*(1.3-1.2)/21.2
+	} else if distance < 100 {
+		return 1.3 + (distance-42.3)*(1.4-1.3)/57.7
+	} else {
+		return 1.4 // Max multiplier voor afstanden groter dan 100 km
+	}
+}
+
 // Functie om de rating te berekenen op basis van snelheid en afstand
 func getRatingForSpeed(speed, distance float64) float64 {
 	if speed <= 0 {
@@ -76,26 +98,6 @@ func getSpeedForRating(rating, distance float64) float64 {
 	return 0
 }
 
-// Afstandsmultiplier berekenen op basis van de afstand
-func getDistanceMultiplier(distance float64) float64 {
-	if distance < 1 {
-		return 0.85 // Basis multiplier voor afstanden minder dan 1 km
-	} else if distance >= 1 && distance <= 5 {
-		// Lineaire schaal tussen 1 km en 5 km
-		return 0.85 + (distance-1)*(1.0-0.85)/4
-	} else if distance <= 10 {
-		return 1.0 + (distance-5)*(1.1-1.0)/5
-	} else if distance <= 15 {
-		return 1.1 + (distance-10)*(1.15-1.1)/5
-	} else if distance <= 21 {
-		return 1.15 + (distance-15)*(1.2-1.15)/6
-	} else if distance <= 42 {
-		return 1.2 + (distance-21)*(1.3-1.2)/21
-	} else {
-		return 1.3 // Max multiplier voor afstanden groter dan 42
-	}
-}
-
 // Tijd berekenen voor een gegeven afstand en snelheid
 func calculateTime(distance, speed float64) (int, int, int) {
 	if speed == 0 {
@@ -120,8 +122,8 @@ func main() {
 		fmt.Scan(&choice)
 
 		var distance float64
-		var hours, minutes, seconds int
-		var rating, startr, endr, stepr float64
+		var hours, minutes int
+		var seconds, rating, startr, endr, stepr float64
 
 		switch choice {
 		case 1:
@@ -129,7 +131,7 @@ func main() {
 			fmt.Scan(&distance)
 			fmt.Print("Enter time (hours minutes seconds): ")
 			fmt.Scan(&hours, &minutes, &seconds)
-			timeInHours := float64(hours) + float64(minutes)/60 + float64(seconds)/3600
+			timeInHours := float64(hours) + float64(minutes)/60 + seconds/3600
 			speed := distance / timeInHours
 			rating := getRatingForSpeed(speed, distance)
 			fmt.Printf("Your speed is: %.2f km/h\n", speed)
