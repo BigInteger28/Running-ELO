@@ -11,7 +11,7 @@ func getDistanceMultiplier(distance float64) float64 {
 		return 0.8 // Basis multiplier voor afstanden minder dan 1 km
 	} else if distance >= 1 && distance <= 5 {
 		// Lineaire schaal tussen 1 km en 5 km
-		return 0.9 + (distance-1)*(1.0-0.9)/4
+		return 0.85 + (distance-1)*(1.0-0.85)/4
 	} else if distance <= 10 {
 		return 1.0 + (distance-5)*(1.1-1.0)/5
 	} else if distance <= 15 {
@@ -27,18 +27,25 @@ func getDistanceMultiplier(distance float64) float64 {
 	}
 }
 
-// Functie om de rating te berekenen op basis van snelheid en afstand
+// Deze functie converteert snelheid naar rating
 func getRatingForSpeed(speed, distance float64) float64 {
-	if speed <= 0 {
-		return 0
-	}
-	// Afstandsmultiplier toepassen
 	multiplier := getDistanceMultiplier(distance)
-	if speed > 22 {
-		// Voor snelheden hoger dan 22 km/u, verhoog elke 1 km/u met 100 ELO
-		return 2800 + (speed-22)*100*multiplier
-	}
+	baseRating := calculateBaseRating(speed) // Hier moet je zorgen dat de logica correct is
+	return baseRating * multiplier
+}
 
+// Deze functie converteert rating naar snelheid
+func getSpeedForRating(rating, distance float64) float64 {
+	multiplier := getDistanceMultiplier(distance)
+	adjustedRating := rating / multiplier
+	return calculateSpeedFromRating(adjustedRating) // Zorg dat deze functie bestaat en correct is
+}
+
+// Helperfunctie om basisrating te berekenen (zonder multiplier)
+func calculateBaseRating(speed float64) float64 {
+	if speed > 22 {
+		return 2800 + (speed-22)*100
+	}
 	// Lineaire interpolatie tussen bekende punten
 	points := []struct {
 		speed  float64
@@ -48,8 +55,7 @@ func getRatingForSpeed(speed, distance float64) float64 {
 		{5, 725},
 		{10, 1475},
 		{15, 2100},
-		{25, 3100},
-		{30, 4100},
+		{22, 2800},
 	}
 
 	// Zoek het juiste segment voor interpolatie
@@ -58,22 +64,15 @@ func getRatingForSpeed(speed, distance float64) float64 {
 			low := points[i]
 			high := points[i+1]
 			baseRating := low.rating + (speed-low.speed)*(high.rating-low.rating)/(high.speed-low.speed)
-			return baseRating * multiplier
+			return baseRating
 		}
 	}
 	return 0
 }
 
-// Functie om de snelheid te berekenen voor een gegeven rating en afstand
-func getSpeedForRating(rating, distance float64) float64 {
-	if rating <= 0 {
-		return 0
-	}
-	multiplier := getDistanceMultiplier(distance)
-	adjustedRating := rating / multiplier
-
+// Helperfunctie om snelheid te berekenen van rating
+func calculateSpeedFromRating(adjustedRating float64) float64 {
 	if adjustedRating > 2800 {
-		// Voor ratings hoger dan 2800 ELO, bereken snelheid boven 22 km/u
 		return 22 + (adjustedRating-2800)/100
 	}
 	points := []struct {
@@ -87,12 +86,12 @@ func getSpeedForRating(rating, distance float64) float64 {
 		{22, 2800},
 	}
 
-	// Omgekeerde interpolatie
 	for i := 0; i < len(points)-1; i++ {
 		if adjustedRating >= points[i].rating && adjustedRating <= points[i+1].rating {
 			low := points[i]
 			high := points[i+1]
-			return low.speed + (adjustedRating-low.rating)*(high.speed-low.speed)/(high.rating-low.rating)
+			interpolatedSpeed := low.speed + (adjustedRating-low.rating)*(high.speed-low.speed)/(high.rating-low.rating)
+			return interpolatedSpeed
 		}
 	}
 	return 0
