@@ -45,8 +45,8 @@ func getSpeedForRating(rating, distance float64) float64 {
 
 // Helperfunctie om basisrating te berekenen (zonder multiplier)
 func calculateBaseRating(speed float64) float64 {
-	if speed > 22 {
-		return 2800 + (speed-22)*100
+	if speed > 15 {
+		return 2000 + (speed-15)*100
 	}
 	// Lineaire interpolatie tussen bekende punten
 	points := []struct {
@@ -54,10 +54,9 @@ func calculateBaseRating(speed float64) float64 {
 		rating float64
 	}{
 		{0, 0},
-		{5, 725},
-		{10, 1475},
-		{15, 2100},
-		{22, 2800},
+		{5, 600},
+		{11, 1500},
+		{15, 2000},
 	}
 
 	// Zoek het juiste segment voor interpolatie
@@ -74,18 +73,17 @@ func calculateBaseRating(speed float64) float64 {
 
 // Helperfunctie om snelheid te berekenen van rating
 func calculateSpeedFromRating(adjustedRating float64) float64 {
-	if adjustedRating > 2800 {
-		return 22 + (adjustedRating-2800)/100
+	if adjustedRating > 2000 {
+		return 15 + (adjustedRating-2000)/100
 	}
 	points := []struct {
 		speed  float64
 		rating float64
 	}{
 		{0, 0},
-		{5, 725},
-		{10, 1475},
-		{15, 2100},
-		{22, 2800},
+		{5, 600},
+		{11, 1500},
+		{15, 2000},
 	}
 
 	for i := 0; i < len(points)-1; i++ {
