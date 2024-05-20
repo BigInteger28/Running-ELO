@@ -14,7 +14,7 @@ func getRatingForSpeed(speed, distance float64) float64 {
 	multiplier := getDistanceMultiplier(distance)
 	if speed > 22 {
 		// Voor snelheden hoger dan 22 km/u, verhoog elke 1 km/u met 100 ELO
-		return 2800 + (speed-22)*100 * multiplier
+		return 2800 + (speed-22)*100*multiplier
 	}
 
 	// Lineaire interpolatie tussen bekende punten
@@ -89,11 +89,11 @@ func getDistanceMultiplier(distance float64) float64 {
 		return 1.1 + (distance-10)*(1.15-1.1)/5
 	} else if distance <= 21 {
 		return 1.15 + (distance-15)*(1.2-1.15)/6
- } else if distance <= 42 {
+	} else if distance <= 42 {
 		return 1.2 + (distance-21)*(1.3-1.2)/21
 	} else {
 		return 1.3 // Max multiplier voor afstanden groter dan 42
-}
+	}
 }
 
 // Tijd berekenen voor een gegeven afstand en snelheid
@@ -110,38 +110,54 @@ func calculateTime(distance, speed float64) (int, int, int) {
 
 // Hoofdfunctie met menu voor gebruikerskeuze
 func main() {
-for{
-	fmt.Println("\nChoose an option:")
-	fmt.Println("1. Get Rating")
-	fmt.Println("2. Get Speed/Time")
-	var choice int
-	fmt.Print("Enter choice: ")
-	fmt.Scan(&choice)
+	for {
+		fmt.Println("\nChoose an option:")
+		fmt.Println("1. Get Rating")
+		fmt.Println("2. Get Speed/Time")
+		fmt.Println("3. Rating table")
+		var choice int
+		fmt.Print("Enter choice: ")
+		fmt.Scan(&choice)
 
-	var distance float64
-	var hours, minutes, seconds int
-	var rating float64
+		var distance float64
+		var hours, minutes, seconds int
+		var rating, startr, endr, stepr float64
 
-	switch choice {
-	case 1:
-		fmt.Print("Enter distance (in km): ")
-		fmt.Scan(&distance)
-		fmt.Print("Enter time (hours minutes seconds): ")
-		fmt.Scan(&hours, &minutes, &seconds)
-		timeInHours := float64(hours) + float64(minutes)/60 + float64(seconds)/3600
-		speed := distance / timeInHours
-		rating := getRatingForSpeed(speed, distance)
-		fmt.Printf("Your speed is: %.2f km/h\n", speed)
-		fmt.Printf("Your running rating is: %.0f ELO\n", rating)
-	case 2:
-		fmt.Print("Enter distance (in km): ")
-		fmt.Scan(&distance)
-		fmt.Print("Enter desired rating: ")
-		fmt.Scan(&rating)
-		speed := getSpeedForRating(rating, distance)
-		h, m, s := calculateTime(distance, speed)
-		fmt.Printf("Rating of %.0f ELO for a distance of %.2f km, Average speed of %.2f km/h.\n", rating, distance, speed)
-		fmt.Printf("Time of %d hours %d minutes %d seconds.\n", h, m, s)
-}
+		switch choice {
+		case 1:
+			fmt.Print("Enter distance (in km): ")
+			fmt.Scan(&distance)
+			fmt.Print("Enter time (hours minutes seconds): ")
+			fmt.Scan(&hours, &minutes, &seconds)
+			timeInHours := float64(hours) + float64(minutes)/60 + float64(seconds)/3600
+			speed := distance / timeInHours
+			rating := getRatingForSpeed(speed, distance)
+			fmt.Printf("Your speed is: %.2f km/h\n", speed)
+			fmt.Printf("Your running rating is: %.0f ELO\n", rating)
+		case 2:
+			fmt.Print("Enter distance (in km): ")
+			fmt.Scan(&distance)
+			fmt.Print("Enter desired rating: ")
+			fmt.Scan(&rating)
+			speed := getSpeedForRating(rating, distance)
+			h, m, s := calculateTime(distance, speed)
+			fmt.Printf("Rating of %.0f ELO for a distance of %.2f km, Average speed of %.2f km/h.\n", rating, distance, speed)
+			fmt.Printf("Time of %d hours %d minutes %d seconds.\n", h, m, s)
+		case 3:
+			fmt.Print("Enter distance (in km): ")
+			fmt.Scan(&distance)
+			fmt.Print("Start rating: ")
+			fmt.Scan(&startr)
+			fmt.Print("End rating: ")
+			fmt.Scan(&endr)
+			fmt.Print("Each step is x rating: ")
+			fmt.Scan(&stepr)
+			for i := startr; i <= endr; i += stepr {
+				speed := getSpeedForRating(i, distance)
+				h, m, s := calculateTime(distance, speed)
+				fmt.Printf("\nRating %.0f ELO, Distance %.2f km, Speed %.2f km/h\n", i, distance, speed)
+				fmt.Printf("Time %d hours %d minutes %d seconds.\n", h, m, s)
+			}
+		}
 	}
 }
