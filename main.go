@@ -7,11 +7,13 @@ import (
 
 // Afstandsmultiplier berekenen op basis van de afstand
 func getDistanceMultiplier(distance float64) float64 {
-	if distance < 1 {
-		return 0.8 // Basis multiplier voor afstanden minder dan 1 km
+	if distance < 0.1 {
+		return 0.8
+	} else if distance >= 0.1 && distance < 1 {
+		return 0.8 + (distance-0.1)*(0.9-0.8)/0.9
 	} else if distance >= 1 && distance <= 5 {
 		// Lineaire schaal tussen 1 km en 5 km
-		return 0.85 + (distance-1)*(1.0-0.85)/4
+		return 0.9 + (distance-1)*(1.0-0.9)/4
 	} else if distance <= 10 {
 		return 1.0 + (distance-5)*(1.1-1.0)/5
 	} else if distance <= 15 {
